@@ -30,3 +30,7 @@ Tools > AVD Manager > Start any emulator
 
 `cordova run android`
 
+# Plugins We are using
+The file plugin to access local files:
+
+`cordova plugin add cordova-plugin-file`
