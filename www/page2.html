@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0051)file:///C:/Users/farre/Desktop/MyApp/www/index.html -->
+<!-- Think of these script tags as imports -->
 <script src="js/common.js" type="text/javascript"></script>
+<script src="js/page2.js" type="text/javascript"></script>
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
         <!--
         Customize this policy to fit your own app's needs. For more guidance, see:
@@ -23,7 +24,11 @@
         <div class="app">
     		<img src="./index_files/icon.png" height="200" width="200" class="center" onclick="iconOnClick();">
             <h1 id="ImageTitle">PAGE 2</h1>
-            <button type="button" onclick="alert()">Next</button>
+            <textarea id="Query" rows="4" cols="50">
+            Put your comma seperated list of tags here. Ex: Grass,basal/ rosette,erect
+            </textarea>
+
+            <button type="button" id="SearchButton">Search!</button>
         </div>
         <script type="text/javascript" src="file:///C:/Users/farre/Desktop/MyApp/www/cordova.js"></script>
         <script type="text/javascript" src="./index_files/index.js.download"></script>
@@ -31,11 +36,12 @@
 
 </body></html>
 
-<!--
 <script>
-function iconOnClick()
-{
-  alert("CLICKED!!!");
-}
+  document.getElementById("SearchButton").addEventListener("click",
+  function()
+  {
+      search(document.getElementById("Query").value);
+  },
+  false
+);
 </script>
--->
