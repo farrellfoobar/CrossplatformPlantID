@@ -4,11 +4,12 @@ Get apache cordova here:
 
 https://cordova.apache.org/#getstarted
 
-`
-git clone https://github.com/farrellfoobar/CrossplatformPlantID
-cd CrossplatformPlantID
-cordova platform add browser 
-`
+`git clone https://github.com/farrellfoobar/CrossplatformPlantID`
+
+`cd CrossplatformPlantID`
+
+`cordova platform add browser`
+
 if you have android studio installed:
 
 `cordova platform add android`
