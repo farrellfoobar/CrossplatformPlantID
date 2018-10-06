@@ -1,5 +1,9 @@
 function nextButton()
 {
-  location.href = 'secondPage.html';
-  //alert("Clicked!");
+  location.href = 'page2.html';
+}
+
+function search(Query)
+{
+  alert("Searched for:")
 }

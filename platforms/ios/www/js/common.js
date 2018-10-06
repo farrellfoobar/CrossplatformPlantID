@@ -1,4 +1,9 @@
-function iconOnClick()
+function nextButton()
 {
-  document.getElementById("ImageTitle").innerHTML = "CLICKED!";
+  location.href = 'page2.html';
+}
+
+function search(Query)
+{
+  alert("Searched for:")
 }
