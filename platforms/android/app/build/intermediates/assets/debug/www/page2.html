@@ -2,6 +2,7 @@
 <!-- Think of these script tags as imports -->
 <script src="cordova.js"></script>
 <script src="js/common.js" type="text/javascript"></script>
+<script src="js/Database.js" type="text/javascript"></script>
 <script src="js/page2.js" type="text/javascript"></script>
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
         <!--
@@ -49,10 +50,8 @@ $(document).ready(function () {
   document.getElementById("SearchButton").addEventListener("click", onSearchButton, false);
   function onSearchButton()
   {
-      search(document.getElementById("Query").value);
-      jQuery.getJSON("www/index_files/plants.json", function(data){
-        alert(data)
-      });
+      var db = new Database();
+      alert(db.get(document.getElementById("Query").value));
   }
 });
 

@@ -1,5 +1,4 @@
 
-
 function Plant(tags) {
   this.tags = tags.split(",");
 }
@@ -7,7 +6,5 @@ function Plant(tags) {
 Plant.prototype.tags = function tags() {
   console.log(this.tags);
 }
-
-
 
 module.exports = Plant;
