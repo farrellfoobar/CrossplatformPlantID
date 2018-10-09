@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="js/Database.js" type="text/javascript"></script>
+<html>
+<head>
+  <link rel="stylesheet" href="index_files/results.css">
+</head>
+
+<body id="body" onload="onload()">
+
+<h1 id="title">HTML Table</h1>
+
+<table id="table" width="30%">
+</table>
+
+<script>
+    var inputString = [
+    [3,"Acmispon glaber"],
+    [3,"Anagallis arvensis"],
+    [3,"Baccharis pilularis"],
+    [3,"Brassica nigra"],
+    [4,"Encelia californica"]
+    ];
+
+    var results;
+    function onload()
+    {
+        var url = new URL(window.location.href);
+
+        var db = new Database();
+        results = db.search(url.searchParams.get("q"));
+        console.log(results);
+        generateTable(results);
+    }
+
+    function generateTable(results)
+    {
+        for(var i = 0; i < results.length; i++)
+        {
+            var row = table.insertRow(i);
+            row.insertCell(0).innerHTML = '<div class="container">\n<div class="scrolling-wrapper"><div class="card" id="'+ results[i][1] +'"></div></div></div>';
+
+            var imagesURLs = getImageURLs(results[i]);
+            console.log(imagesURLs);
+            for(var n = 0; n < imagesURLs.length; n++)
+            {
+                document.getElementById(results[i][1]).innerHTML += imagesURLs[n];
+            }
+        }
+    }
+
+    function getImageURLs(plantName)
+    {
+      //TODO: A real implementation
+
+      var m = Math.floor(Math.random() * 30);
+      var ret = [];
+
+      for(var i = 0; i < m; i++)
+        ret[i]= '<img src="https://via.placeholder.com/150x75">';
+
+      return ret;
+    }
+
+</script>
+
+</body>
+</html>
