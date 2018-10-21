@@ -16,6 +16,8 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <icon src="res/icon.png" />
+    <name>PlantID</name>
     <platform name="android">
         <allow-intent href="market:*" />
     </platform>
@@ -25,6 +27,5 @@
     </platform>
     <plugin name="cordova-plugin-file" spec="^6.0.1" />
     <engine name="browser" spec="^5.0.4" />
-    <engine name="ios" spec="^4.5.5" />
     <engine name="android" spec="^7.1.1" />
 </widget>

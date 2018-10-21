@@ -21,13 +21,39 @@
 
 .card {
   border: 1px solid white;
-  width: 150px;
-  height: 75px;
+  width: 350px;
+  height: 350px;
   background: black;
 }
 
+.result {
+    height: 350px;
+}
+
+.resultsTitle {
+    font-family: arial, sans-serif;
+    background-color: #33cc33;
+    border: none;
+    color: black;
+    width: 100%;
+    overflow: hidden;
+}
+
+.resultTitle
+{
+  font-family: arial, sans-serif;
+  color: black;
+  margin: 0;
+  padding-top: 30px;
+}
+
+.homeIcon{
+  height: 30px;
+  width: 30px;
+}
+
 .scrolling-wrapper, .scrolling-wrapper-flexbox {
-  height: 75px;
+  height: 350px;
   width: 100%;
   -webkit-overflow-scrolling: touch;
   &::-webkit-scrollbar {

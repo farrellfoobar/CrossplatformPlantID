@@ -5,12 +5,25 @@
 </head>
 <body id="body" class="optionsBody">
 
-<h1 class="optionsTitle" id="title">HTML Table</h1>
+<h1 class="optionsTitle">
+<table width="100%">
+  <tr>
+    <td align="center" onclick="handleBackButton()" width="10%">«</td>
+    <td align="center" width="80%" id="title">TITLE</td>
+    <td onclick="location.href='index.html';" align="center" width="10%"><img class="homeIcon" src="./index_files/homeIcon.png" ></img></td>
+  </tr>
+</table>
+</h1>
 
 <table class="optionsTable" id="table" data-step-index="0">
 </table>
 
-<button class="nextButton" onclick="nextPage()">Next</button>
+<button class="nextButton" onclick="nextPage()">
+<p style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px;">
+Next
+<span style="font-size: 28px; float:right; padding-top: 0px; padding-bottom: 0px;">»</span>
+</p>
+</button>
 
 <script>
     var stages = new Map([
@@ -33,10 +46,20 @@
 
     function nextPage()
     {
+      var url = new URL(window.location.href);
+
+      if( url.searchParams.get("q") != null && stageIndex == -1) //redirect from results
+      {
+        query = url.searchParams.get("q");
+        stageIndex = keys.length-2;
+      }
+
       if(stageIndex > -1)
         for(i = 0; i < table.rows.length; i++)
           if(table.rows[i].cells[1].dataset.selected == "true")
+          {
             query += (stages.get(keys[stageIndex])[i] + ",");
+          }
 
       stageIndex++;
 
@@ -44,7 +67,8 @@
       {
         document.getElementById("title").innerHTML = keys[stageIndex];
         table.innerHTML = "";
-        generateTable(stages.get(keys[stageIndex]), table);
+
+        generateTable(stages.get(keys[stageIndex]), table, keys[stageIndex]);
       }
       else
       {
@@ -54,11 +78,22 @@
         window.location.href="results.html?q=" + query;
       }
     }
-    function generateTable(attribs, table)
-    {
-        // For testing, need an outer method to handle moving from table to table
-        //attribs = stages.get("Plant Group");
 
+    function handleBackButton()
+    {
+      document.getElementById("title").innerHTML = keys[stageIndex];
+      table.innerHTML = "";
+
+      stageIndex--;
+      if( stageIndex < 0 )
+        location.href='index.html';
+      else
+        generateTable(stages.get(keys[stageIndex]), table, keys[stageIndex]);
+
+    }
+
+    function generateTable(attribs, table, attribType)
+    {
         for(i = 0; i < attribs.length; i++)
         {
             var row = table.insertRow(i);

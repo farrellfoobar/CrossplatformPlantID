@@ -1,4 +1,4 @@
-var minResults = 5;
+var minResults = 6;
 
 function Database()
 {
@@ -15,19 +15,19 @@ function Database()
       async: true
   });
 
-  this.elements = temp;
+  this.plants = temp;
 }
 
 Database.prototype.search = function search(attributesAsString)
 {
-  var targetAttributes = attributesAsString.split(",")
-  var givenAttributes = [];
   var results = [];
-
-  for(i = 0; i < this.elements.length; i++)
+  var givenAttributes = [];
+  var targetAttributes = attributesAsString.split(",");
+  for(i = 0; i < this.plants.length; i++)
   {
       var score = 0;
-      givenAttributes = this.elements[i].slice(2);
+      givenAttributes = this.plants[i].split(", ").slice(2);
+
       for(n = 0; n < targetAttributes.length; n++)
         if(givenAttributes.includes(targetAttributes[n]))
           score++;
@@ -43,20 +43,21 @@ Database.prototype.search = function search(attributesAsString)
   }
 
   temp = results.slice(0);
-  console.log(temp);
 
   for(i = 0; i < results.length; i++)
-    results[i] = [results[i][0], this.elements[results[i][1]][0]]
-  return results;
+    results[i] = [results[i][0], this.plants[results[i][1]].split(", ")[0]]
+
+
+  return results.reverse();
 }
 
 Database.prototype.get = function get(name)
 {
-  for(i = 0; i < this.elements.length; i++)
+  for(i = 0; i < this.plants.length; i++)
   {
-    if(this.elements[i][0] == name)
+    if(this.plants[i][0] == name)
     {
-      return this.elements[i];
+      return this.plants[i];
     }
   }
 }
