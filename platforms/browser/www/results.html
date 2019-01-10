@@ -35,7 +35,7 @@
     ];
 
     var imageSuffixes = ["Plant", "Flower", "Leaf", "Seedling", "Cot",  "Fruit"];
-    var relPath = "index_files/plantImages/";
+    var relPath = "./index_files/plantImages/";
     var query = "";
 
     var results;
@@ -47,14 +47,18 @@
         query = url.searchParams.get("q");
         results = db.search(query);
         console.log(results);
+        console.log("here1");
         generateTable(results);
+        console.log("here4");
         generateTags(results);
     }
 
     function generateTable(results)
     {
+      console.log("here2");
         for(var i = 0; i < results.length; i++)
         {
+          console.log("here3");
             var row = table.insertRow(i);
             row.insertCell(0).innerHTML = '<div class="container"><h1 class="resultTitle">' + results[i][1] +
             '</h1><div class="scrolling-wrapper"><div class="card" id="'+ results[i][1] +'"></div></div></div>';
@@ -62,6 +66,7 @@
             var imagesURLs = getImageURLs(results[i][1]);
             for(var n = 0; n < imagesURLs.length; n++)
             {
+                console.log("DEBUGG: inserting images");
                 document.getElementById(results[i][1]).innerHTML += imagesURLs[n];
             }
         }
@@ -145,7 +150,9 @@
         http.open('HEAD', url, false);
         try{
           http.send();
-        }catch(ex){}
+        }catch(ex){
+          console.log("path does not exist.");
+        }
         return http.status==200; //On browser 404 is retuned on android 0 is returned
     }
 
