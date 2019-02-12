@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <link rel="stylesheet" href="index_files/styles.css">
@@ -56,11 +56,12 @@ Next
 
       if(stageIndex > -1)
         for(i = 0; i < table.rows.length; i++)
+        {
           if(table.rows[i].cells[1].dataset.selected == "true")
           {
             query += (stages.get(keys[stageIndex])[i] + ",");
           }
-
+        }
       stageIndex++;
 
       if(stageIndex < keys.length)
@@ -141,6 +142,6 @@ Next
     }
 
 </script>
-
+<div style="height:75px; width:100%; clear:both;"></div>
 </body>
 </html>

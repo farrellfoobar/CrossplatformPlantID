@@ -1,0 +1,8 @@
+*.apk
+
+plantImages/*
+
+*.png
+*.jpeg
+*.JPEG
+*.PNG
