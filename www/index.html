@@ -20,6 +20,7 @@
         <title>Hello World</title>
     </head>
     <body>
+        <div id="deviceready">
         <div class="app">
             <table class="titleTable">
               <tr>
@@ -30,6 +31,8 @@
                 <td class="titleTable"><button class="regularSearchButton" onclick="location.href='search.html';">Regular Search</button>
               <tr>
                 <td class="titleTable"><button class="expertModeButton" onclick="location.href='expertMode.html';">Expert Mode</button>
+              <tr>
+                <td class="titleTable"><button class="expertModeButton" onclick="goToDownloads()">Expert Mode</button>
             </table>
         </div>
         <script type="text/javascript" src="file:///C:/Users/farre/Desktop/MyApp/www/cordova.js"></script>
@@ -37,3 +40,20 @@
 
 
 </body></html>
+
+<script>
+
+function goToDownloads()
+{
+  cordova.InAppBrowser.open('https://sample-videos.com/download-sample-text-file.php', '_blank', 'location=yes');
+}
+
+document.addEventListener("deviceready", onDeviceReady, false);
+
+function onDeviceReady() {
+        app.receivedEvent('deviceready');
+          window.open = cordova.InAppBrowser.open;
+            cordova.InAppBrowser.open('http://apache.org', '_self', 'location=yes');
+    }
+
+</script>

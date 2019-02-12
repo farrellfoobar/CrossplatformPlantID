@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="index_files/results.css">
 </head>
 
-<body id="body" onload="onload()">
+<!-- <body id="body" onload="onload()"> -->
 
 <h1 id="title" class="resultsTitle">
   <table width="100%">
@@ -26,13 +26,7 @@
 </table>
 
 <script>
-    var inputString = [
-    [3,"Acmispon glaber"],
-    [3,"Anagallis arvensis"],
-    [3,"Baccharis pilularis"],
-    [3,"Brassica nigra"],
-    [4,"Encelia californica"]
-    ];
+  document.addEventListener("deviceready", onload, false);
 
     var imageSuffixes = ["Plant", "Flower", "Leaf", "Seedling", "Cot",  "Fruit"];
     var relPath = "./index_files/plantImages/";
@@ -48,26 +42,18 @@
         results = db.search(query);
         console.log(results);
         generateTable(results);
-        generateTags(results);
+        //generateTags(results);
     }
 
     function generateTable(results)
     {
-      console.log("here2");
         for(var i = 0; i < results.length; i++)
         {
             var row = table.insertRow(i);
             row.insertCell(0).innerHTML = '<div class="container"><h1 class="resultTitle">' + results[i][1] +
             '</h1><div class="scrolling-wrapper"><div class="card" id="'+ results[i][1] +'"></div></div></div>';
-            console.log("here4");
-            var imagesURLs = getImageURLs(results[i][1]);
-            console.log("image urls: " + imagesURLs);
-            console.log("image urls len: " + imagesURLs.length);
-            for(var n = 0; n < imagesURLs.length; n++)
-            {
-                console.log("DEBUGG: inserting images");
-                document.getElementById(results[i][1]).innerHTML += imagesURLs[n];
-            }
+
+            discoverAndInsertImages(results[i][1])
         }
     }
 
@@ -91,47 +77,43 @@
 
     }
 
-    function getImageURLs(plantName)
+    function discoverAndInsertImages(sciName)
     {
-      var ret = [];
-      var code = (plantName.split(" ")[0].slice(0,3) + plantName.split(" ")[1].slice(0,3)).toUpperCase() + "_";
-      var searchPath = "";
-      var everyInstanceOfAttribFound = false;
-      var instanceCount = 0;
-
-      for(i = 0; i < imageSuffixes.length; i++)
-      {
-        searchPath = relPath + code + imageSuffixes[i];
-        everyInstanceOfAttribFound = false;
-        instanceCount = 0;
-
-        while(!everyInstanceOfAttribFound)
-        {
-          if(instanceCount == 0)
+        var contents = [];
+        path = cordova.file.applicationDirectory
+        + "www/index_files/plantImages/"
+        + getPlantCode(sciName);
+        window.resolveLocalFileSystemURL(path,
+          function URLsuccess(entry)
           {
-
-            if( pathExists( searchPath + ".png") )
-                ret.push('<img class="result" src="' + searchPath + ".png" + '">');
-            else if( pathExists( searchPath + ".jpg") )
-                ret.push('<img class="result" src="' + searchPath + ".jpg" + '">');
-            else
-                everyInstanceOfAttribFound = true;
+              var directoryReader = entry.createReader();
+              directoryReader.readEntries(
+                function readerSuccess(entries)
+                {
+                  for (var i=0; i<entries.length; i++)
+                  {
+                    contents[i] = '<img class="result" src="'
+                    + relPath
+                    + getPlantCode(sciName) + "/"
+                    + entries[i].name
+                    + '">';
+                  }
+                  insertImages(contents, sciName);
+                }
+                ,function fail(error) {console.log(error);});
           }
-          else
-          {
-            if( pathExists( searchPath + instanceCount + ".png") )
-                ret.push('<img height="150px" class="result" src="' + searchPath + instanceCount + ".png" + 'height=100 width=100">');
-            else if( pathExists( searchPath + instanceCount + ".jpg") )
-                ret.push('<img height="150px" class="result" src="' + searchPath + instanceCount + ".jpg" + ' height=100 width=100">');
-            else
-                everyInstanceOfAttribFound = true;
-          }
+        , function fail(error) {console.log(error);});
+    }
 
-          instanceCount++
-        }
+    function insertImages(contents, sciName)
+    {
+      for(var i = 0; i < contents.length; i++)
+        document.getElementById(sciName).innerHTML += contents[i];
+    }
 
-      }
-      return ret;
+    function getPlantCode(name)
+    {
+      return name.split(" ")[0].substring(0,3).toUpperCase() + name.split(" ")[1].substring(0,3).toUpperCase()
     }
 
     function handleBackButton()
