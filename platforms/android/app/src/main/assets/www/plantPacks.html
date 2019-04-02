@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<script src="js/Database.js" type="text/javascript"></script>
+<script src="cordova.js"></script>
+<script src="js/tokenizer.js" type="text/javascript"></script>
+<script src="js/downloader.js" type="text/javascript"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.405.0.min.js"></script>
+
+<body id="body">
+  <link rel="stylesheet" href="index_files/styles.css">
+  <table id="PlantPackTable" class="titleTable">
+    <tr>
+      <td class="titleTable"><h1 class="title">PlantPacks</h1>
+  </table>
+</body>
+
+<script>
+  document.addEventListener("deviceready", onload, false);
+
+  //FORCE NO CACHE: using the cache always breaks this
+  $(document).ready(function() {
+    $.ajaxSetup({ cache: false });
+  });
+
+  var downloader;
+  var manifest;
+
+  function onload()
+  {
+    $.getJSON("https://s3.amazonaws.com/plantid-dev/manifest.json", function(data) {
+      loadBody(data);
+    }).fail( function(data, textStatus, error) {
+        document.getElementById("body").innerHTML =
+        "An error occured when trying to contact the server. Are we connected to the internet?"
+        console.log("getJSON failed, status: " + textStatus + ", error: "+error)
+    });
+  }
+
+  function loadBody(newManifest)
+  {
+    manifest = newManifest;
+    var plantGroups = new Set();
+
+    for(var i = 0; i < manifest.length; i++)
+      plantGroups.add(manifest[i][1]);
+
+    var table = document.getElementById("PlantPackTable");
+    console.log(table);
+    console.log(plantGroups);
+    plantGroups = Array.from(plantGroups);
+    console.log(plantGroups);
+    for(var i = 0; i < plantGroups.length; i++)
+    {
+      var row = table.insertRow(1);
+      row.innerHTML = "<button class='expertModeButton' data-group='" +
+      plantGroups[i] + "' onclick='plantPackOnClick(this)'>" + plantGroups[i] + "</button>";
+    }
+
+  }
+
+function plantPackOnClick(group)
+{
+  group = group.dataset.group;
+  var plantsToAquire = [];
+
+  console.log("click came from group: " + group);
+
+  for(var i = 0; i < manifest.length; i++)
+    if( manifest[i][1] == group)
+      plantsToAquire.push(manifest[i][0]);
+
+  getPlants(plantsToAquire)
+}
+
+function getPlants()
+{
+  console.log(httpGet("http://s3.amazonaws.com/plantid-dev"));
+  /*
+  var bucket = new AWS.S3();
+  var params = {
+     Bucket: 'plantid-dev',
+     Delimiter: '/',
+     Prefix: 'preserve/'
+    }
+
+  bucket.listObjectsV2(params, function (err, data)
+  {
+    if(err)
+      console.log(err);
+    else
+    {
+      console.log(data);
+    }
+  });
+  */
+}
+
+function httpGet(url)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", url, false ); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
+
+function debugListDir(path)
+{
+  window.resolveLocalFileSystemURL(path,
+    function URLsuccess(entry)
+    {
+        var directoryReader = entry.createReader();
+        directoryReader.readEntries(
+          function readerSuccess(entries)
+          {
+            for (var i=0; i<entries.length; i++)
+            {
+              console.log( path + " contains: " + entries[i].name);
+            }
+          }
+          ,function fail(error) {console.log(error);});
+    }
+  , function fail(error) {console.log(error);});
+}
+
+//returns local url for resource
+function downloadResource(url)
+{
+  downloader = Downloader.interface;
+
+  downloader.init({folder: "testApp", unzip: false});
+  document.addEventListener("DOWNLOADER_error", function(event){
+    console.err("error downloading resource!");
+    console.log(event.data);
+  });
+
+  document.addEventListener("DOWNLOADER_downloadSuccess", function(event){
+    console.log("successfully downloaded file");
+    return event.data[0].toURL();
+  });
+
+  downloader.get(url);
+}
+</script>
