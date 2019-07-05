@@ -1,75 +1,55 @@
 <!DOCTYPE html>
 <!-- Think of these script tags as imports -->
 <script src="cordova.js"></script>
-<script src="js/common.js" type="text/javascript"></script>
-<script src="js/expertMode.js" type="text/javascript"></script>
+<script src="js/file.js" type="text/javascript"></script>
 <link rel="stylesheet" href="index_files/styles.css">
-<script src="index_files/plants.json" type="text/javascript"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
-<script src="js/tokenizer.js" type="text/javascript"></script>
 
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-        <title>Hello World</title>
+  <title>Hello World</title>
     </head>
-    <h1 class="optionsTitle">
-    <table width="100%">
-      <tr>
-        <td align="center" width="10%"></td>
-        <td align="center" width="80%" id="title">Expert Mode</td>
-        <td onclick="location.href='index.html';" align="center" width="10%"><img class="homeIcon" src="./index_files/homeIcon.png" ></img></td>
-      </tr>
-    </table>
-    </h1>
+      <h1 class="optionsTitle">
+        <table width="100%">
+          <tr>
+            <td align="center" width="10%"></td>
+            <td align="center" width="80%" id="title">Expert Mode</td>
+            <td onclick="location.href='index.html';" align="center" width="10%"><img class="homeIcon" src="./index_files/homeIcon.png" ></img></td>
+          </tr>
+        </table>
+      </h1>
     <body>
-        <div align="center">
-    		<img src="./index_files/icon.png" height="200" width="200" class="center" onclick="iconOnClick();">
-            <h1 id="ImageTitle" class="title">Expert Mode Search:</h1>
+      <div align="center">
+    	  <img src="./index_files/icon.png" height="200" width="200" class="center" onclick="iconOnClick();">
+        <h1 id="ImageTitle" class="title">Expert Mode Search:</h1>
           <main>
       			<input id="my-input" type="text">
       		</main>
+        <button type="button" class=regularSearchButton id="SearchButton">Search!</button>
+      </div>
+</body>
 
-      		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-          <script src="js/tokenizer.js" type="text/javascript"></script>
-      		<script>
-            var temp;
-            $.ajaxSetup({
-                async: false
-            });
-
-            $.getJSON("index_files/attribs.json", function(data){
-              temp = data;
-            });
-
-            $.ajaxSetup({
-                async: true
-            });
-
-            var options = {source:temp, label: 'Attributes:', separators: [',', ' ', '.'], allowUnknownTags: false};
-      			var $input = $('#my-input').tokenizer(options);
-      		</script>
-
-            <button type="button" class=regularSearchButton id="SearchButton">Search!</button>
-        </div>
-        <script type="text/javascript" src="file:///C:/Users/farre/Desktop/MyApp/www/cordova.js"></script>
-        <script type="text/javascript" src="./index_files/index.js.download"></script>
-
-
-</body></html>
-
-<!--
-This is efectively the entry point to the backend.
-For now the search function will be invokable with a string
-that consists of a comma seperated list of attributes. We should
-
--->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
-$(document).ready(function () {
-  document.getElementById("SearchButton").addEventListener("click", onSearchButton, false);
-  function onSearchButton()
-  {
-      //window.location.href="results.html?q=" + document.getElementById("Query").value;
-      window.location.href="results.html?q=" + $input.tokenizer('get').join();
-  }
-});
+
+var $input;
+document.addEventListener("deviceready", createInputBox, false);
+
+function createInputBox()
+{
+  attribs = readJSON("attribs.json")
+
+  /* getScript is used here because tokenizer must be loaded in whatever context
+  the callback is exectued in */
+  $.getScript("js/tokenizer.js", function() {
+    var options = {source:attribs, label: 'Attributes:', separators: [',', ' ', '.'], allowUnknownTags: false};
+    $input = $('#my-input').tokenizer(options);
+  })
+}
+
+function onSearchButton()
+{
+    window.location.href="results.html?q=" + $input.tokenizer('get').join();
+}
+document.getElementById("SearchButton").addEventListener("click", onSearchButton, false);
 </script>
+
+</html>

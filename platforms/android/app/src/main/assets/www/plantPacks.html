@@ -3,6 +3,8 @@
 <script src="cordova.js"></script>
 <script src="js/tokenizer.js" type="text/javascript"></script>
 <script src="js/downloader.js" type="text/javascript"></script>
+<script src="js/common.js" type="text/javascript"></script>
+<script src="js/file.js" type="text/javascript"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://sdk.amazonaws.com/js/aws-sdk-2.405.0.min.js"></script>
 
@@ -21,123 +23,143 @@
   $(document).ready(function() {
     $.ajaxSetup({ cache: false });
   });
+  $.ajaxSetup({
+      async: false
+  });
 
   var downloader;
   var manifest;
+  var installedPacks;
+  var imageFilePaths = [];
 
   function onload()
   {
+    try{
+      installedPacks = new Set(readJSON("packs.json"));
+    }catch(error){
+      writeFile("packs.json", []);
+    }
+
+    xmlDoc = (new DOMParser()).parseFromString(httpGet("https://s3.amazonaws.com/plantid-dev"), "text/xml")
+
+    objects = xmlDoc.getElementsByTagName("Key");
+    regex = "images\/.+\/.+"; //in english: images/anything/anything
+
+    for(i = 0; i < objects.length; i++)
+    {
+      object = objects[i].childNodes[0].nodeValue;
+      if(object.match(regex) != null)
+        imageFilePaths.push(object);
+    }
+
     $.getJSON("https://s3.amazonaws.com/plantid-dev/manifest.json", function(data) {
+      console.log("got json");
       loadBody(data);
     }).fail( function(data, textStatus, error) {
         document.getElementById("body").innerHTML =
-        "An error occured when trying to contact the server. Are we connected to the internet?"
+        "An error occured when trying to contact the server. Are you connected to the internet?"
         console.log("getJSON failed, status: " + textStatus + ", error: "+error)
     });
   }
 
-  function loadBody(newManifest)
+function loadBody(newManifest)
+{
+  console.log(newManifest)
+  manifest = newManifest;
+
+  var table = document.getElementById("PlantPackTable");
+  for(var i = 0; i < manifest.length; i++)
   {
-    manifest = newManifest;
-    var plantGroups = new Set();
+    var row = table.insertRow(1);
 
-    for(var i = 0; i < manifest.length; i++)
-      plantGroups.add(manifest[i][1]);
+    button = "<button class='expertModeButton' data-group='" +
+    manifest[i][0] + "' onclick='plantPackOnClick(this)'>" + manifest[i][0];
 
-    var table = document.getElementById("PlantPackTable");
-    console.log(table);
-    console.log(plantGroups);
-    plantGroups = Array.from(plantGroups);
-    console.log(plantGroups);
-    for(var i = 0; i < plantGroups.length; i++)
+    if( installedPacks.has(manifest[i][0]) )
     {
-      var row = table.insertRow(1);
-      row.innerHTML = "<button class='expertModeButton' data-group='" +
-      plantGroups[i] + "' onclick='plantPackOnClick(this)'>" + plantGroups[i] + "</button>";
+      if(isUpToDate(i))
+        button += " (Up To Date!) ";
+      else
+        button += " (Update?) ";
     }
+    else
+      button += " (Install?) ";
 
+    button += " </button> ";
+    row.innerHTML = button;
   }
+
+}
+
+//TODO: real implementation
+function isUpToDate(packIndex)
+{
+  /*
+  var plants = [];
+
+  for(var i = 0; i < manifest[packIndex].length; i++)
+    if(manifest[packIndex][i])
+      */
+  return true;
+}
 
 function plantPackOnClick(group)
 {
   group = group.dataset.group;
-  var plantsToAquire = [];
+  installedPacks.add(group);
+  console.log(installedPacks);
+
+  writeFile("packs.json", JSON.stringify(Array.from(installedPacks)));
+
+  //DEBUGGING:
+  $.getJSON(cordova.file.dataDirectory + "packs.json", function(data){
+    console.log("packs on disk: " + data);
+  });
+
+  var plantCodesToAquire = [];
 
   console.log("click came from group: " + group);
-
+  console.log("manifest:");
+  console.log(manifest);
   for(var i = 0; i < manifest.length; i++)
-    if( manifest[i][1] == group)
-      plantsToAquire.push(manifest[i][0]);
+    if( manifest[i][0] == group)
+      plantCodesToAquire = plantCodesToAquire.concat(manifest[i]);
 
-  getPlants(plantsToAquire)
+  getPlants(plantCodesToAquire)
 }
 
-function getPlants()
+function getPlants(plantCodesToAquire)
 {
-  console.log(httpGet("http://s3.amazonaws.com/plantid-dev"));
-  /*
-  var bucket = new AWS.S3();
-  var params = {
-     Bucket: 'plantid-dev',
-     Delimiter: '/',
-     Prefix: 'preserve/'
-    }
+  console.log("plantCodesToAquire:");
+  console.log(plantCodesToAquire);
 
-  bucket.listObjectsV2(params, function (err, data)
+  var filePathsToGet = [];
+  for(i = 0; i < plantCodesToAquire.length; i++)
   {
-    if(err)
-      console.log(err);
-    else
+    regex = "images\/" + plantCodesToAquire[i] + "\/.+"; //i.e. "images/ACMGLA/*"
+    filePathsToGet = filePathsToGet.concat( imageFilePaths.filter( path => path.match(regex) ) )
+  }
+
+  console.log("filePathsToGet:");
+  console.log(filePathsToGet);
+
+  for(i = 0; i < filePathsToGet.length; i++)
+  {
+    console.log("writing file: " + filePathsToGet[i]);
+    var blob = null;
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "https://s3.amazonaws.com/plantid-dev/" + filePathsToGet[i]);
+    xhr.fileName = filePathsToGet[i].split("/").join(".");
+    xhr.responseType = "blob";//force the HTTP response, response-type header to be blob
+    xhr.onload = function()
     {
-      console.log(data);
+      blob = xhr.response;
+      console.log("writing file: " + xhr.fileName);
+      writeFile(xhr.fileName, blob);
     }
-  });
-  */
+    xhr.send();
+  }
+  debugListDataDir();
 }
 
-function httpGet(url)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", url, false ); // false for synchronous request
-    xmlHttp.send( null );
-    return xmlHttp.responseText;
-}
-
-function debugListDir(path)
-{
-  window.resolveLocalFileSystemURL(path,
-    function URLsuccess(entry)
-    {
-        var directoryReader = entry.createReader();
-        directoryReader.readEntries(
-          function readerSuccess(entries)
-          {
-            for (var i=0; i<entries.length; i++)
-            {
-              console.log( path + " contains: " + entries[i].name);
-            }
-          }
-          ,function fail(error) {console.log(error);});
-    }
-  , function fail(error) {console.log(error);});
-}
-
-//returns local url for resource
-function downloadResource(url)
-{
-  downloader = Downloader.interface;
-
-  downloader.init({folder: "testApp", unzip: false});
-  document.addEventListener("DOWNLOADER_error", function(event){
-    console.err("error downloading resource!");
-    console.log(event.data);
-  });
-
-  document.addEventListener("DOWNLOADER_downloadSuccess", function(event){
-    console.log("successfully downloaded file");
-    return event.data[0].toURL();
-  });
-
-  downloader.get(url);
-}
 </script>

@@ -7,15 +7,12 @@ function Database()
       async: false
   });
 
-  $.getJSON("index_files/plants.json", function(data){
+  $.getJSON(cordova.file.dataDirectory + "plants.json", function(data){
     temp = data;
-  });
-
-  $.ajaxSetup({
-      async: true
-  });
+  })
 
   this.plants = temp;
+  //this.plants = readFile("plants.json");//temp;
 }
 
 Database.prototype.search = function search(attributesAsString)

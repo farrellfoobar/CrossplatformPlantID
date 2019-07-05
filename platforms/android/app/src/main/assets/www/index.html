@@ -3,6 +3,9 @@
 <script src="cordova.js"></script>
 <script src="js/tokenizer.js" type="text/javascript"></script>
 <script src="js/downloader.js" type="text/javascript"></script>
+<script src="js/file.js" type="text/javascript"></script>
+<script src="js/common.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <html>
   <link rel="stylesheet" href="index_files/styles.css">
@@ -27,5 +30,38 @@
 </html>
 
 <script>
+//this is the equivalent of a body onload=deviceready except it waits for cordova too
+  document.addEventListener("deviceready", updateLocalFiles, false);
+
+function updateLocalFiles()
+{
+  constants.dataDir = cordova.file.dataDirectory;
+  //FORCE NO CACHE: using the cache always breaks this
+  $(document).ready(function() {
+    $.ajaxSetup({ cache: false });
+  });
+  $.ajaxSetup({
+      async: false
+  });
+
+  for(i = 0; i < constants.filesToSync.length; i++)
+  {
+    console.log("requesting url: " + constants.resourceURL + constants.filesToSync[i])
+    $.ajax({
+      type: "GET",
+      url: constants.resourceURL + constants.filesToSync[i],
+      success: function(data) {
+        console.log("wrote file: " + constants.filesToSync[i]);
+        writeFile(constants.filesToSync[i], data)
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        console.log("Status: " + textStatus);
+        console.log("Error: " + errorThrown);
+      },
+      cache: false
+    });
+  }
+  debugListDataDir(); //debugging
+}
 
 </script>

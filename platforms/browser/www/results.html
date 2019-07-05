@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="js/file.js" type="text/javascript"></script>
 <script src="js/Database.js" type="text/javascript"></script>
 <script src="cordova.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -80,8 +81,8 @@
     function discoverAndInsertImages(sciName)
     {
         var contents = [];
-        path = cordova.file.applicationDirectory
-        + "www/index_files/plantImages/"
+        path = cordova.file.dataDirectory
+        + "images/"
         + getPlantCode(sciName);
         window.resolveLocalFileSystemURL(path,
           function URLsuccess(entry)

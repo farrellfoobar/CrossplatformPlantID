@@ -26,16 +26,16 @@ Next
 </button>
 
 <script>
-    var stages = new Map([
-
+    var stages = new Map(
+      [
         ["Plant Group", ["tree","grass","shrub","forb","succulent"]],
         ["Leaf Type", ["simple","lobed","pinnate","compound/deeply divided","blade"]],
         ["Leaf Arrangement", ["alternate","opposite","bundled","whorled","rosette"]],
         ["Growth Form", ["prostrate","decumbent","ascending","erect","mat","clump-forming","rosette","vine"]],
         ["Flower Color", ["white","yellow","red","orange","blue","purple","green","pink"]],
         ["Flower Symetry", ["radial","bilateral","asymmetrical"]]
-
-        ]);
+        ]
+      );
 
     var keys = Array.from(stages.keys());
     var stageIndex = -1;
