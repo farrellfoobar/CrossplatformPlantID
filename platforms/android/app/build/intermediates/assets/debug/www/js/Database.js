@@ -10,9 +10,39 @@ function Database()
   $.getJSON(cordova.file.dataDirectory + "plants.json", function(data){
     temp = data;
   })
-
   this.plants = temp;
-  //this.plants = readFile("plants.json");//temp;
+
+  $.getJSON(cordova.file.dataDirectory + "manifest.json", function(data){
+    temp = data;
+  })
+  this.manifest = temp;
+
+  $.getJSON(cordova.file.dataDirectory + "packs.json", function(data){
+    temp = data;
+  })
+  this.packs = temp;
+
+  var plantCodesInPacks = new Set();
+  for(i = 0; i < this.packs.length; i++)
+    for(j = 0; j < this.manifest.length; j++)
+      if(this.manifest[j][0] == this.packs[i] )
+        this.manifest[j].slice(1).forEach(item => plantCodesInPacks.add(item))
+
+  for(i = 0; i < this.plants.length; i++)
+  {
+    if( !plantCodesInPacks.has(getPlantCode(this.plants[i])) )
+    {
+      this.plants.splice(i);
+      i--;
+    }
+  }
+
+}
+
+function getPlantCode(plantAsString)
+{
+  name = plantAsString.substring(0, plantAsString.indexOf(","))
+  return name.split(" ")[0].substring(0,3).toUpperCase() + name.split(" ")[1].substring(0,3).toUpperCase()
 }
 
 Database.prototype.search = function search(attributesAsString)

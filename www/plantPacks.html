@@ -140,26 +140,38 @@ function getPlants(plantCodesToAquire)
     filePathsToGet = filePathsToGet.concat( imageFilePaths.filter( path => path.match(regex) ) )
   }
 
-  console.log("filePathsToGet:");
-  console.log(filePathsToGet);
-
   for(i = 0; i < filePathsToGet.length; i++)
   {
-    console.log("writing file: " + filePathsToGet[i]);
-    var blob = null;
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "https://s3.amazonaws.com/plantid-dev/" + filePathsToGet[i]);
-    xhr.fileName = filePathsToGet[i].split("/").join(".");
-    xhr.responseType = "blob";//force the HTTP response, response-type header to be blob
-    xhr.onload = function()
-    {
-      blob = xhr.response;
-      console.log("writing file: " + xhr.fileName);
-      writeFile(xhr.fileName, blob);
-    }
-    xhr.send();
+    var url = 'https://s3.amazonaws.com/plantid-dev/' + filePathsToGet[i];
+    var filePath = cordova.file.dataDirectory + filePathsToGet[i].split("/").join(".");
+    var fileTransfer = new FileTransfer();
+    var uri = encodeURI(url);
+
+    fileTransfer.download(
+      uri,
+      filePath,
+      function(entry) {
+          console.log("download complete: " + entry.fullPath);
+      },
+      function(error) {
+          console.log("download error source " + error.source);
+          console.log("download error target " + error.target);
+          console.log("upload error code" + error.code);
+      },
+      false,
+      {
+        headers: {}
+      }
+    );
   }
+
   debugListDataDir();
+}
+
+function errorCallback(error)
+{
+  console.log("Error:")
+  console.log(error)
 }
 
 </script>

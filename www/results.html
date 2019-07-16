@@ -48,14 +48,51 @@
 
     function generateTable(results)
     {
-        for(var i = 0; i < results.length; i++)
-        {
-            var row = table.insertRow(i);
-            row.insertCell(0).innerHTML = '<div class="container"><h1 class="resultTitle">' + results[i][1] +
-            '</h1><div class="scrolling-wrapper"><div class="card" id="'+ results[i][1] +'"></div></div></div>';
+      var images = [];
 
-            discoverAndInsertImages(results[i][1])
+      window.resolveLocalFileSystemURL(cordova.file.dataDirectory,
+        function URLsuccess(entry)
+        {
+            var directoryReader = entry.createReader();
+            directoryReader.readEntries(
+              function readerSuccess(entries)
+              {
+                for (var i=0; i<entries.length; i++)
+                {
+                  images.push(entries[i].name)
+                }
+
+                console.log("results: " + results )
+                for(var i = 0; i < results.length; i++)
+                {
+                    var row = table.insertRow(i);
+                    row.insertCell(0).innerHTML = '<div class="container"><h1 class="resultTitle">' + results[i][1] +
+                    '</h1><div class="scrolling-wrapper"><div class="card" id="'+ results[i][1] +'"></div></div></div>';
+
+                    regex = "images\\." +  getPlantCode(results[i][1]) + "\\.+"; //i.e. "images/ACMGLA/*"
+
+                    sciName = results[i][1];
+                    resultImages = images.filter( path => path.match(regex) );
+
+                    console.log("resultImages: " + resultImages)
+                    document.getElementById(sciName).innerHTML = '<img class="result" src="' + cordova.file.dataDirectory + resultImages[0] + '">';
+
+                    for(var k = 1; k < resultImages.length; k++)
+                    {
+                      console.log("adding image: " + resultImages[k]);
+                      //console.log(document.getElementById(sciName).innerHTML)
+                      document.getElementById(sciName).innerHTML =
+                      document.getElementById(sciName).innerHTML + '<img class="result" src="' + cordova.file.dataDirectory + resultImages[k] + '">';
+                    }
+
+
+                    //insertImages(images.filter( path => path.match(regex) ), results[i][1])
+                }
+              }
+              , function fail(error) {console.log(error);});
         }
+      , function fail(error) {console.log(error);});
+
     }
 
     function generateTags()
@@ -78,38 +115,16 @@
 
     }
 
-    function discoverAndInsertImages(sciName)
+    function insertImages(images, sciName)
     {
-        var contents = [];
-        path = cordova.file.dataDirectory
-        + "images."
-        + getPlantCode(sciName);
-        window.resolveLocalFileSystemURL(cordova.file.dataDirectory,
-          function URLsuccess(entry)
-          {
-              var directoryReader = entry.createReader();
-              directoryReader.readEntries(
-                function readerSuccess(entries)
-                {
-                  for (var i=0; i<entries.length; i++)
-                  {
-                    contents[i] = '<img class="result" src="'
-                    + relPath
-                    + getPlantCode(sciName) + "."
-                    + entries[i].name
-                    + '">';
-                  }
-                  insertImages(contents, sciName);
-                }
-                ,function fail(error) {console.log(error);});
-          }
-        , function fail(error) {console.log(error);});
-    }
-
-    function insertImages(contents, sciName)
-    {
-      for(var i = 0; i < contents.length; i++)
-        document.getElementById(sciName).innerHTML += contents[i];
+      console.log("in inserImages! with id: " + sciName);
+      for(var i = 0; i < images.length; i++)
+      {
+        console.log("adding image: " + images[i]);
+        console.log(document.getElementById(sciName))
+        document.getElementById(sciName).innerHTML = "why the fuck isnt this working???"
+        //document.getElementById(sciName).innerHTML + '<img class="result" src="' + cordova.file.dataDirectory + images[i] + '">';
+      }
     }
 
     function getPlantCode(name)

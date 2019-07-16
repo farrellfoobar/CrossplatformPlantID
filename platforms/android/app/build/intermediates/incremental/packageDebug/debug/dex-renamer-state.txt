@@ -1,4 +1,4 @@
-#Fri Jul 05 16:52:20 PDT 2019
+#Tue Jul 16 16:22:11 PDT 2019
 base.0=C\:\\Users\\farre\\Desktop\\CrossplatformPlantID\\platforms\\android\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\0
 path.0=classes.dex
 renamed.0=classes.dex

@@ -25,13 +25,30 @@
       <tr>
         <td class="titleTable"><button class="expertModeButton" onclick="location.href='plantPacks.html'">Plant Packs</button>
     </table>
-</div>
+      <div style="margin: 0 auto; bottom: 0; padding-bottom: 10px; padding-top: 50px;">
+        <table class="titleTable">
+          <tr>
+            <td class="titleTable" ><button class="iButton" onclick="goToCredits()">ⓘ</button>
+            <td align="center" width="80%">
+            <td class="titleTable" ><button class="questionButton" onclick="goToTutorial()">?</button>
+        </table>
+      </div>
       </div>
 </html>
 
 <script>
 //this is the equivalent of a body onload=deviceready except it waits for cordova too
-  document.addEventListener("deviceready", updateLocalFiles, false);
+document.addEventListener("deviceready", updateLocalFiles, false);
+
+function goToCredits()
+{
+  window.location.href = cordova.file.dataDirectory + "credits.html";
+}
+
+function goToTutorial()
+{
+  window.location.href = cordova.file.dataDirectory + "tutorial.html";
+}
 
 function updateLocalFiles()
 {
@@ -51,7 +68,6 @@ function updateLocalFiles()
       type: "GET",
       url: constants.resourceURL + constants.filesToSync[i],
       success: function(data) {
-        console.log("wrote file: " + constants.filesToSync[i]);
         writeFile(constants.filesToSync[i], data)
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
