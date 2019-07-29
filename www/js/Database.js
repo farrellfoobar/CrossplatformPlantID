@@ -22,15 +22,26 @@ function Database()
   })
   this.packs = temp;
 
+  $.getJSON(cordova.file.dataDirectory + "packsToSearch.json", function(data){
+    temp = data;
+  })
+  this.packsToSearch = temp;
+
   var plantCodesInPacks = new Set();
   for(i = 0; i < this.packs.length; i++)
     for(j = 0; j < this.manifest.length; j++)
       if(this.manifest[j][0] == this.packs[i] )
         this.manifest[j].slice(1).forEach(item => plantCodesInPacks.add(item))
 
+  var plantCodesInPacksToSearch = new Set();
+  for(i = 0; i < this.packsToSearch.length; i++)
+    for(j = 0; j < this.manifest.length; j++)
+      if(this.manifest[j][0] == this.packsToSearch[i] )
+        this.manifest[j].slice(1).forEach(item => plantCodesInPacksToSearch.add(item))
+
   for(i = 0; i < this.plants.length; i++)
   {
-    if( !plantCodesInPacks.has(getPlantCode(this.plants[i])) )
+    if( !plantCodesInPacks.has(getPlantCode(this.plants[i])) || !plantCodesInPacksToSearch.has(getPlantCode(this.plants[i])))
     {
       this.plants.splice(i);
       i--;

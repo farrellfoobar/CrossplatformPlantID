@@ -19,7 +19,7 @@
       <tr>
         <td class="titleTable"><h1 class="title">PlantID</h1>
       <tr>
-        <td class="titleTable"><button class="regularSearchButton" onclick="location.href='search.html';">Regular Search</button>
+        <td class="titleTable"><button class="regularSearchButton" onclick="goToSearch()">Regular Search</button>
       <tr>
         <td class="titleTable"><button class="expertModeButton" onclick="location.href='expertMode.html';">Expert Mode</button>
       <tr>
@@ -48,6 +48,11 @@ function goToCredits()
 function goToTutorial()
 {
   window.location.href = cordova.file.dataDirectory + "tutorial.html";
+}
+
+function goToSearch()
+{
+  window.location.href = cordova.file.dataDirectory + "search.html";
 }
 
 function updateLocalFiles()

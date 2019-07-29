@@ -10,9 +10,17 @@
 
 <body id="body">
   <link rel="stylesheet" href="index_files/styles.css">
-  <table id="PlantPackTable" class="titleTable">
+  <table class="titleTable">
     <tr>
-      <td class="titleTable"><h1 class="title">PlantPacks</h1>
+      <td class="titleTable"><h1 class="title">PlantPacks</h1></td>
+    </tr>
+  </table>
+  <table id="PlantPackTable" class="plantPackTable">
+    <tr>
+      <th class="titleTable"><p class="menuTextHeader">Pack</p></td>
+      <th class="titleTable"><p class="menuTextHeader">Installed?</p></td>
+      <th class="titleTable"><p class="menuTextHeader">Searching?</p></td>
+    </tr>
   </table>
 </body>
 
@@ -30,37 +38,51 @@
   var downloader;
   var manifest;
   var installedPacks;
+  var packsToSearch;
   var imageFilePaths = [];
 
   function onload()
   {
-    try{
-      installedPacks = new Set(readJSON("packs.json"));
-    }catch(error){
-      writeFile("packs.json", []);
-    }
+    installedPacks = new Set(readJSON("packs.json"));
+    packsToSearch = new Set(readJSON("packsToSearch.json"));
 
-    xmlDoc = (new DOMParser()).parseFromString(httpGet("https://s3.amazonaws.com/plantid-dev"), "text/xml")
+    updateManifest();
+    updateImageFilePaths();
+  }
 
-    objects = xmlDoc.getElementsByTagName("Key");
-    regex = "images\/.+\/.+"; //in english: images/anything/anything
+function updateImageFilePaths()
+{
+  xmlDoc = (new DOMParser()).parseFromString(httpGet("https://s3.amazonaws.com/plantid-dev"), "text/xml")
 
-    for(i = 0; i < objects.length; i++)
-    {
-      object = objects[i].childNodes[0].nodeValue;
-      if(object.match(regex) != null)
-        imageFilePaths.push(object);
-    }
+  objects = xmlDoc.getElementsByTagName("Key");
+  regex = "images\/.+\/.+"; //in english: images/anything/anything
 
-    $.getJSON("https://s3.amazonaws.com/plantid-dev/manifest.json", function(data) {
-      console.log("got json");
+  for(i = 0; i < objects.length; i++)
+  {
+    object = objects[i].childNodes[0].nodeValue;
+    if(object.match(regex) != null)
+      imageFilePaths.push(object);
+  }
+}
+
+function updateManifest()
+{
+  $.getJSON("https://s3.amazonaws.com/plantid-dev/manifest.json", function(data) {
+    console.log("got json");
+    loadBody(data);
+  }).fail( function(data, textStatus, error) {
+
+    $.getJSON( cordova.file.dataDirectory + "manifest.json", function(data) {
+      console.log("got json from local, are we offline?");
       loadBody(data);
     }).fail( function(data, textStatus, error) {
         document.getElementById("body").innerHTML =
         "An error occured when trying to contact the server. Are you connected to the internet?"
         console.log("getJSON failed, status: " + textStatus + ", error: "+error)
     });
-  }
+
+  });
+}
 
 function loadBody(newManifest)
 {
@@ -72,21 +94,35 @@ function loadBody(newManifest)
   {
     var row = table.insertRow(1);
 
-    button = "<button class='expertModeButton' data-group='" +
-    manifest[i][0] + "' onclick='plantPackOnClick(this)'>" + manifest[i][0];
+    packName = "<td><p class='resultTitle' >" + manifest[i][0];
+
+    installedCheckBox = "<td><input type='checkbox' class='menuText' id='" + manifest[i][0] + "InstalledCheckBox' data-group='" + manifest[i][0] + "'onclick='plantPackOnClick(this)' ";
+
+    searchingCheckBox = "<td><input type='checkbox' class='menuText' id='" + manifest[i][0] +"SearchingCheckBox' data-group='" + manifest[i][0] + "'onclick='plantPackOnSearch(this)'";
 
     if( installedPacks.has(manifest[i][0]) )
     {
       if(isUpToDate(i))
-        button += " (Up To Date!) ";
+        installedCheckBox += "checked";
       else
-        button += " (Update?) ";
+      {
+        installedCheckBox += "checked";
+        //TODO: ATTEMPT UPDATE
+      }
     }
     else
-      button += " (Install?) ";
+    {
+      searchingCheckBox += "disabled";
+    }
 
-    button += " </button> ";
-    row.innerHTML = button;
+    if( packsToSearch.has(manifest[i][0]) )
+      searchingCheckBox += "checked";
+
+
+    installedCheckBox += " ></td>"
+    searchingCheckBox += " ></td>"
+    packName += " </p></td>";
+    row.innerHTML = packName + installedCheckBox + searchingCheckBox;
   }
 
 }
@@ -103,29 +139,58 @@ function isUpToDate(packIndex)
   return true;
 }
 
-function plantPackOnClick(group)
+function plantPackOnSearch(checkbox)
 {
-  group = group.dataset.group;
-  installedPacks.add(group);
-  console.log(installedPacks);
+  group = checkbox.dataset.group;
+  checked = checkbox.checked;
+  if(checked)
+  {
+    packsToSearch.add(group);
+    writeFile("packsToSearch.json", JSON.stringify(Array.from(packsToSearch)));
+  }
+  else
+  {
+    packsToSearch.delete(group);
+    writeFile("packsToSearch.json", JSON.stringify(Array.from(packsToSearch)));
+  }
+}
 
-  writeFile("packs.json", JSON.stringify(Array.from(installedPacks)));
+function plantPackOnClick(checkbox)
+{
+  group = checkbox.dataset.group;
+  checked = checkbox.checked;
 
-  //DEBUGGING:
-  $.getJSON(cordova.file.dataDirectory + "packs.json", function(data){
-    console.log("packs on disk: " + data);
-  });
+  if(checked)
+  {
+    installedPacks.add(group);
+    writeFile("packs.json", JSON.stringify(Array.from(installedPacks)));
 
-  var plantCodesToAquire = [];
+    searchingCheckBox = document.getElementById(group+"SearchingCheckBox");
+    searchingCheckBox.checked = true;
+    searchingCheckBox.disabled = false;
+    plantPackOnSearch(searchingCheckBox);
 
-  console.log("click came from group: " + group);
-  console.log("manifest:");
-  console.log(manifest);
-  for(var i = 0; i < manifest.length; i++)
-    if( manifest[i][0] == group)
-      plantCodesToAquire = plantCodesToAquire.concat(manifest[i]);
+    //DEBUGGING:
+    $.getJSON(cordova.file.dataDirectory + "packs.json", function(data){
+      console.log("packs on disk: " + data);
+    });
 
-  getPlants(plantCodesToAquire)
+    var plantCodesToAquire = [];
+
+    console.log("click came from group: " + group);
+    console.log("manifest:");
+    console.log(manifest);
+    for(var i = 0; i < manifest.length; i++)
+      if( manifest[i][0] == group)
+        plantCodesToAquire = plantCodesToAquire.concat(manifest[i]);
+
+    getPlants(plantCodesToAquire);
+  }
+  else
+  {
+    installedPacks.delete(group);
+    writeFile("packs.json", JSON.stringify(Array.from(installedPacks)));
+  }
 }
 
 function getPlants(plantCodesToAquire)

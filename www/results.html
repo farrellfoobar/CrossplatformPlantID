@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+    
+<!DOCTYPE html>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="js/file.js" type="text/javascript"></script>
 <script src="js/Database.js" type="text/javascript"></script>
@@ -28,16 +29,13 @@
 
 <script>
   document.addEventListener("deviceready", onload, false);
-
     var imageSuffixes = ["Plant", "Flower", "Leaf", "Seedling", "Cot",  "Fruit"];
     var relPath = "./index_files/plantImages/";
     var query = "";
-
     var results;
     function onload()
     {
         var url = new URL(window.location.href);
-
         var db = new Database();
         query = url.searchParams.get("q");
         results = db.search(query);
@@ -45,11 +43,9 @@
         generateTable(results);
         //generateTags(results);
     }
-
     function generateTable(results)
     {
       var images = [];
-
       window.resolveLocalFileSystemURL(cordova.file.dataDirectory,
         function URLsuccess(entry)
         {
@@ -61,22 +57,17 @@
                 {
                   images.push(entries[i].name)
                 }
-
                 console.log("results: " + results )
                 for(var i = 0; i < results.length; i++)
                 {
                     var row = table.insertRow(i);
                     row.insertCell(0).innerHTML = '<div class="container"><h1 class="resultTitle">' + results[i][1] +
                     '</h1><div class="scrolling-wrapper"><div class="card" id="'+ results[i][1] +'"></div></div></div>';
-
                     regex = "images\\." +  getPlantCode(results[i][1]) + "\\.+"; //i.e. "images/ACMGLA/*"
-
                     sciName = results[i][1];
                     resultImages = images.filter( path => path.match(regex) );
-
                     console.log("resultImages: " + resultImages)
                     document.getElementById(sciName).innerHTML = '<img class="result" src="' + cordova.file.dataDirectory + resultImages[0] + '">';
-
                     for(var k = 1; k < resultImages.length; k++)
                     {
                       console.log("adding image: " + resultImages[k]);
@@ -84,37 +75,28 @@
                       document.getElementById(sciName).innerHTML =
                       document.getElementById(sciName).innerHTML + '<img class="result" src="' + cordova.file.dataDirectory + resultImages[k] + '">';
                     }
-
-
                     //insertImages(images.filter( path => path.match(regex) ), results[i][1])
                 }
               }
               , function fail(error) {console.log(error);});
         }
       , function fail(error) {console.log(error);});
-
     }
-
     function generateTags()
     {
       var tags = [results.length];
       var options = {source:temp, label: 'Attributes:', separators: [',', ' ', '.'], allowUnknownTags: false};
-
       for(i = 0; i < results.length; i++)
       {
         document.getElementById(results[i][1]).innerHTML += '<main><input id="' + results[i][1] + '-tags" type="text"></main>';
-
         //TODO: This doesnt work
         /*
         console.log($('#' + results[i][1] + '-tags'));
         tags[i] = $('#' + results[i][1] + '-tags').tokenizer(options);
         tags[i].tokenizer('push', 'YOLO');
         */
-
       }
-
     }
-
     function insertImages(images, sciName)
     {
       console.log("in inserImages! with id: " + sciName);
@@ -126,17 +108,14 @@
         //document.getElementById(sciName).innerHTML + '<img class="result" src="' + cordova.file.dataDirectory + images[i] + '">';
       }
     }
-
     function getPlantCode(name)
     {
       return name.split(" ")[0].substring(0,3).toUpperCase() + name.split(" ")[1].substring(0,3).toUpperCase()
     }
-
     function handleBackButton()
     {
       location.href='search.html'  + "?q=" + query;
     }
-
     function pathExists(url)
     {
       var iOS = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
@@ -155,7 +134,6 @@
         }catch(ex){}
         return http.status==200; //On browser 404 is retuned on android 0 is returned
     }
-
 </script>
 
 </body>
