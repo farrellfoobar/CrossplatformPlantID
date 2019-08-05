@@ -205,30 +205,7 @@ function getPlants(plantCodesToAquire)
     filePathsToGet = filePathsToGet.concat( imageFilePaths.filter( path => path.match(regex) ) )
   }
 
-  for(i = 0; i < filePathsToGet.length; i++)
-  {
-    var url = 'https://s3.amazonaws.com/plantid-dev/' + filePathsToGet[i];
-    var filePath = cordova.file.dataDirectory + filePathsToGet[i].split("/").join(".");
-    var fileTransfer = new FileTransfer();
-    var uri = encodeURI(url);
-
-    fileTransfer.download(
-      uri,
-      filePath,
-      function(entry) {
-          console.log("download complete: " + entry.fullPath);
-      },
-      function(error) {
-          console.log("download error source " + error.source);
-          console.log("download error target " + error.target);
-          console.log("upload error code" + error.code);
-      },
-      false,
-      {
-        headers: {}
-      }
-    );
-  }
+  downloadFiles(filePathsToGet);
 
   debugListDataDir();
 }

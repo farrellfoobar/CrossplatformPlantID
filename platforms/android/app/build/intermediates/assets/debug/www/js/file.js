@@ -1,3 +1,5 @@
+var awsURL = "http://s3.amazonaws.com/plantid-dev";
+
 function errorCallback(error)
 {
   console.log("Error:")
@@ -86,7 +88,7 @@ function debugListDataDir()
 function getPlants(plants)
 {
   console.log(plants)
-  console.log(httpGet("http://s3.amazonaws.com/plantid-dev"));
+  console.log(httpGet(awsURL));
 }
 
 function httpGet(url)
@@ -95,4 +97,46 @@ function httpGet(url)
     xmlHttp.open( "GET", url, false ); // false for synchronous request
     xmlHttp.send( null );
     return xmlHttp.responseText;
+}
+
+function syncRootAWSdir()
+{
+  xmlDoc = (new DOMParser()).parseFromString(httpGet(awsURL), "text/xml")
+  keys = xmlDoc.getElementsByTagName("Key");
+  filesToDownload = [];
+
+  for(i = 0; i < keys.length; i++)
+  {
+    filesToDownload.push(keys[i].childNodes[0].nodeValue);
+  }
+
+  downloadFiles(filesToDownload);
+}
+
+function downloadFiles(files)
+{
+  for(i = 0; i < files.length; i++)
+  {
+    var url = awsURL + '/' + files[i];
+    var filePath = cordova.file.dataDirectory + files[i].split("/").join(".");
+    var fileTransfer = new FileTransfer();
+    var uri = encodeURI(url);
+
+    fileTransfer.download(
+      uri,
+      filePath,
+      function(entry) {
+          console.log("download complete: " + entry.fullPath);
+      },
+      function(error) {
+          console.log("download error source " + error.source);
+          console.log("download error target " + error.target);
+          console.log("upload error code" + error.code);
+      },
+      false,
+      {
+        headers: {}
+      }
+    );
+  }
 }

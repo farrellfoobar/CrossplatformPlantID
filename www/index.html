@@ -52,7 +52,7 @@ function goToTutorial()
 
 function goToSearch()
 {
-  window.location.href = cordova.file.dataDirectory + "search.html";
+  window.location.href = cordova.file.dataDirectory + "search.html?s=" + cordova.file.applicationDirectory;
 }
 
 function updateLocalFiles()
@@ -60,7 +60,7 @@ function updateLocalFiles()
   constants.dataDir = cordova.file.dataDirectory;
   //FORCE NO CACHE: using the cache always breaks this
   $(document).ready(function() {
-    $.ajaxSetup({ cache: false });
+    $.ajaxSetup({ cache: true });
   });
   $.ajaxSetup({
       async: false
@@ -82,6 +82,9 @@ function updateLocalFiles()
       cache: false
     });
   }
+
+  syncRootAWSdir();
+
   debugListDataDir(); //debugging
 }
 

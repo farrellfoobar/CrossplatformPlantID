@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="index_files/styles.css">
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body id="body" class="optionsBody">
 
@@ -10,7 +10,7 @@
   <tr>
     <td align="center" onclick="handleBackButton()" width="10%">«</td>
     <td align="center" width="80%" id="title">Regular Search</td>
-    <td onclick="location.href='index.html';" align="center" width="10%"><img class="homeIcon" src="./index_files/homeIcon.png" ></img></td>
+    <td onclick="goToIndex();" align="center" width="10%"><img class="homeIcon" src="./index_files/homeIcon.png" ></img></td>
   </tr>
 </table>
 </h1>
@@ -76,7 +76,8 @@ Next
         if(query.charAt(query.length-1) == ",")
           query = query.slice(0,query.length-1);
 
-        window.location.href="results.html?q=" + query;
+        console.log("going to results");
+        goToResults(query);
       }
     }
 
@@ -99,12 +100,12 @@ Next
         {
             var row = table.insertRow(i);
             row.className="optionsRow";
-            row.insertCell(0).innerHTML = '<img src="./index_files/img/' + attribs[i] +'.png" height="75" width="75">';
+            row.insertCell(0).innerHTML = '<img src="' + attribs[i] +'.png" height="75" width="75">';
             row.insertCell(1).innerHTML = capitalize(attribs[i]);
 
             // filesystem doesnt allow "/" in file name
             if(attribs[i] == "compound/deeply divided")
-              row.cells[0].innerHTML = '<img src="./index_files/img/' + "compound" +'.png" height="75" width="75">';
+              row.cells[0].innerHTML = '<img src="' + "compound" +'.png" height="75" width="75">';
 
             table.rows[i].cells[0].className="optionsRow";
             table.rows[i].cells[1].className="optionsRow";
@@ -139,6 +140,17 @@ Next
     function capitalize(string)
     {
         return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function goToResults(query)
+    {
+      console.log("in goto results: s: " + window.location.search);
+      window.location.href = window.location.search.replace("?s=", "") + "www/results.html?q=" + query;
+    }
+
+    function goToIndex()
+    {
+      window.location.href = window.location.search.replace("?s=", "") + "www/index.html";
     }
 
 </script>
